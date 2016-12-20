@@ -1,0 +1,4 @@
+self: play -> accesslog 0.1
+
+require:
+    - play
