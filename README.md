@@ -9,7 +9,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 0.1
+    - accesslog -> accesslog 0.2
 
 repositories:
     - accesslog:
@@ -31,9 +31,17 @@ accesslog.enabled=true
 accesslog.logPost=true
 ```
 
+####  Enable logging of body of HTTP response
+
+The following option will log the body of HTTP responses, only if the response has an error status code (4xx or 5xx)
+
+```
+accesslog.logResponse=true
+```
+
 #  Warning
 
-This module is intended for logging in developpement and testing environments, and shouldn't be used in production.
+This module might have some impact on performances. It is only intended for logging in developpement and testing environments, and shouldn't be used in production.
 
 # License
 

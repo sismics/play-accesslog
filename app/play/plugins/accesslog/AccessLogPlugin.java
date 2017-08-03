@@ -2,16 +2,19 @@ package play.plugins.accesslog;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
+import play.Logger;
 import play.Play;
 import play.PlayPlugin;
 import play.mvc.Http;
 
 public class AccessLogPlugin extends PlayPlugin {
-    private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt \"%post\"";
+    private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt \"%post\" \"%response\"";
 
     private boolean enable;
 
     private boolean logPost;
+
+    private boolean logResponse;
 
     private static final String CONFIG_PREFIX = "accesslog";
 
@@ -19,6 +22,7 @@ public class AccessLogPlugin extends PlayPlugin {
     public void onConfigurationRead() {
         enable = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".enabled", "false"));
         logPost = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logPost", "false"));
+        logResponse = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logResponse", "false"));
     }
 
     @Override
@@ -74,6 +78,8 @@ public class AccessLogPlugin extends PlayPlugin {
         line = StringUtils.replaceOnce(line, "%ua", (userAgent != null) ? userAgent.value() : "");
         line = StringUtils.replaceOnce(line, "%rt", String.valueOf(requestProcessingTime));
 
+        line = replacePost(request, line);
+        line = replaceResponse(response, line);
         if (logPost && request.method.equals("POST")) {
             String body = request.params.get("body");
 
@@ -89,6 +95,43 @@ public class AccessLogPlugin extends PlayPlugin {
 
         line = StringUtils.trim(line);
 
-        play.Logger.info(line);
+        Logger.info(line);
+    }
+
+    private String replacePost(Http.Request request, String line) {
+        if (logPost && request.method.equals("POST")) {
+            String body = request.params.get("body");
+
+            if (StringUtils.isNotEmpty(body)) {
+                line = StringUtils.replaceOnce(line, "%post", body);
+            } else {
+                // leave quotes in the logged string to show it was an empty POST request
+                line = StringUtils.remove(line, "%post");
+            }
+        } else {
+            line = StringUtils.remove(line, "\"%post\"");
+        }
+        return line;
+    }
+
+    private String replaceResponse(Http.Response response, String line) {
+        if (logResponse && isErrorStatus(response) && response.out != null) {
+            String value = response.out.toString();
+
+            if (StringUtils.isNotEmpty(value)) {
+                line = StringUtils.replaceOnce(line, "%response", value);
+            } else {
+                // leave quotes in the logged string to show it was an empty response
+                line = StringUtils.remove(line, "%response");
+            }
+        } else {
+            line = StringUtils.remove(line, "\"%response\"");
+        }
+        return line;
+    }
+
+    private boolean isErrorStatus(Http.Response response) {
+        int statusCode = response.status / 100;
+        return statusCode == 4 || statusCode == 5;
     }
 }
