@@ -1,4 +1,4 @@
-self: play -> accesslog 0.2
+self: play -> accesslog 0.3
 
 require:
     - play

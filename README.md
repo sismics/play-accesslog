@@ -31,6 +31,13 @@ accesslog.enabled=true
 accesslog.logPost=true
 ```
 
+####  Enable logging of HTTP request headers
+
+
+```
+accesslog.logRequestHeaders=true
+```
+
 ####  Enable logging of body of HTTP response
 
 The following option will log the body of HTTP responses, only if the response has an error status code (4xx or 5xx)

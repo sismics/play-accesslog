@@ -7,10 +7,14 @@ import play.Play;
 import play.PlayPlugin;
 import play.mvc.Http;
 
+import java.util.StringJoiner;
+
 public class AccessLogPlugin extends PlayPlugin {
-    private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt \"%post\" \"%response\"";
+    private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt [%rh] \"%post\" \"%response\"";
 
     private boolean enable;
+
+    private boolean logRequestHeaders;
 
     private boolean logPost;
 
@@ -21,6 +25,7 @@ public class AccessLogPlugin extends PlayPlugin {
     @Override
     public void onConfigurationRead() {
         enable = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".enabled", "false"));
+        logRequestHeaders = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logRequestHeaders", "false"));
         logPost = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logPost", "false"));
         logResponse = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logResponse", "false"));
     }
@@ -78,24 +83,28 @@ public class AccessLogPlugin extends PlayPlugin {
         line = StringUtils.replaceOnce(line, "%ua", (userAgent != null) ? userAgent.value() : "");
         line = StringUtils.replaceOnce(line, "%rt", String.valueOf(requestProcessingTime));
 
+        line = replaceRequestHeaders(request, line);
         line = replacePost(request, line);
         line = replaceResponse(response, line);
-        if (logPost && request.method.equals("POST")) {
-            String body = request.params.get("body");
-
-            if (StringUtils.isNotEmpty(body)) {
-                line = StringUtils.replaceOnce(line, "%post", body);
-            } else {
-                // leave quotes in the logged string to show it was an empty POST request
-                line = StringUtils.remove(line, "%post");
-            }
-        } else {
-            line = StringUtils.remove(line, "\"%post\"");
-        }
 
         line = StringUtils.trim(line);
 
         Logger.info(line);
+    }
+
+    private String replaceRequestHeaders(Http.Request request, String line) {
+        if (logRequestHeaders) {
+            StringJoiner sj = new StringJoiner(", ");
+            for (Http.Header header : request.headers.values()) {
+                for (String value: header.values) {
+                    sj.add("\"" + header.name + ": " + value + "\"");
+                }
+            }
+            line = StringUtils.replaceOnce(line, "%rh", sj.toString());
+        } else {
+            line = StringUtils.remove(line, "[%rh]");
+        }
+        return line;
     }
 
     private String replacePost(Http.Request request, String line) {
