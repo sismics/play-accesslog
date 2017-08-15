@@ -1,4 +1,4 @@
-package play.plugins.accesslog;
+package plugins.accesslog;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
@@ -6,36 +6,37 @@ import play.Logger;
 import play.Play;
 import play.PlayPlugin;
 import play.mvc.Http;
+import play.mvc.Router;
 
 import java.util.StringJoiner;
 
+/**
+ * Access logs plugin.
+ *
+ * @author jtremeaux
+ */
 public class AccessLogPlugin extends PlayPlugin {
     private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt [%rh] \"%post\" \"%response\"";
 
-    private boolean enable;
+    public boolean enabled;
 
-    private boolean logRequestHeaders;
+    public boolean logRequestHeaders;
 
-    private boolean logPost;
+    public boolean logPost;
 
-    private boolean logResponse;
+    public boolean logResponse;
+
+    public boolean consoleEnabled;
 
     private static final String CONFIG_PREFIX = "accesslog";
 
     @Override
     public void onConfigurationRead() {
-        enable = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".enabled", "false"));
+        enabled = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".enabled", "false"));
         logRequestHeaders = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logRequestHeaders", "false"));
         logPost = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logPost", "false"));
         logResponse = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logResponse", "false"));
-    }
-
-    @Override
-    public void onApplicationStart() {
-    }
-
-    @Override
-    public void onApplicationStop() {
+        consoleEnabled = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".console.enabled", String.valueOf(Play.mode.isDev())));
     }
 
     @Override
@@ -44,7 +45,7 @@ public class AccessLogPlugin extends PlayPlugin {
     }
 
     private synchronized void log() {
-        if (!enable) {
+        if (!enabled) {
             return;
         }
         Http.Request request = Http.Request.current();
@@ -142,5 +143,10 @@ public class AccessLogPlugin extends PlayPlugin {
     private boolean isErrorStatus(Http.Response response) {
         int statusCode = response.status / 100;
         return statusCode == 4 || statusCode == 5;
+    }
+
+    @Override
+    public void onRoutesLoaded() {
+        Router.prependRoute("GET", "/@accesslog", "AccessLogs.index");
     }
 }

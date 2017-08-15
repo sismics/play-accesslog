@@ -1,1 +1,1 @@
-100:play.plugins.accesslog.AccessLogPlugin
+100:plugins.accesslog.AccessLogPlugin

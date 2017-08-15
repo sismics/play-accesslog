@@ -1,0 +1,18 @@
+<html>
+<head></head>
+<body>
+<h1>Access log console</h1>
+
+<h2>Configuration</h2>
+
+<form method="POST" action="@{AccessLogs.updateAccessLog}">
+    <label for="enabled">Enable logging: </label> <input type="checkbox" id="enabled" name="enabled" #{if accessLogPlugin.enabled}checked#{/if} /> <br/>
+    <label for="logRequestHeaders">Log request headers: </label> <input type="checkbox" id="logRequestHeaders" name="logRequestHeaders" #{if accessLogPlugin.logRequestHeaders}checked#{/if} /> <br/>
+    <label for="logPost">Log POST: </label> <input type="checkbox" id="logPost" name="logPost" #{if accessLogPlugin.logPost}checked#{/if} /> <br/>
+    <label for="logResponse">Log response: </label> <input type="checkbox" id="logResponse" name="logResponse" #{if accessLogPlugin.logResponse}checked#{/if} /> <br/>
+    <input type="submit" value="Submit"/>
+</form>
+
+#{if flash.success}<p>Configuration updated successfully!</p>#{/if}
+</body>
+</html>

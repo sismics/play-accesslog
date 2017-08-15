@@ -9,7 +9,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 0.2
+    - accesslog -> accesslog 0.4
 
 repositories:
     - accesslog:
@@ -40,10 +40,33 @@ accesslog.logRequestHeaders=true
 
 ####  Enable logging of body of HTTP response
 
-The following option will log the body of HTTP responses, only if the response has an error status code (4xx or 5xx)
+The following parameter will log the body of HTTP responses, only if the response has an error status code (4xx or 5xx)
 
 ```
 accesslog.logResponse=true
+```
+
+# Access the logs console
+
+The logs console allows you to modify configuration parameters at runtime.
+
+Add the following parameter to enable the logs console:
+
+```
+accesslog.console.enabled=true
+```
+
+Note: the console is enabled by default in Dev mode.
+
+![Logs console](/doc/accesslog.png?raw=true)
+
+### Secure the logs console
+
+Add the following parameter to secure the logs console
+
+```
+accesslog.console.username=console
+accesslog.console.password=pass1234
 ```
 
 #  Warning
