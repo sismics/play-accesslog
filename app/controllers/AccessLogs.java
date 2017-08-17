@@ -1,13 +1,13 @@
 package controllers;
 
-import helpers.BasicAuthHelper;
+import helpers.accesslog.BasicAuthHelper;
 import play.Play;
 import play.mvc.Controller;
 import play.mvc.Util;
 import plugins.accesslog.AccessLogPlugin;
 
 /**
- * Apis controller.
+ * Access logs controller.
  *
  * @author jtremeaux
  */

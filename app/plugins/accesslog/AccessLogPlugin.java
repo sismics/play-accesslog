@@ -5,6 +5,7 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
+import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Router;
 
@@ -27,6 +28,8 @@ public class AccessLogPlugin extends PlayPlugin {
     public boolean logResponse;
 
     public boolean consoleEnabled;
+
+    public F.EventStream<String> events = new F.EventStream<>();
 
     private static final String CONFIG_PREFIX = "accesslog";
 
@@ -90,6 +93,10 @@ public class AccessLogPlugin extends PlayPlugin {
 
         line = StringUtils.trim(line);
 
+        if (consoleEnabled) {
+            events.publish(line);
+        }
+
         Logger.info(line);
     }
 
@@ -148,5 +155,6 @@ public class AccessLogPlugin extends PlayPlugin {
     @Override
     public void onRoutesLoaded() {
         Router.prependRoute("GET", "/@accesslog", "AccessLogs.index");
+        Router.prependRoute("WS", "/@accesslog/logs", "AccessLogWebsockets.logs");
     }
 }

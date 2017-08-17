@@ -1,4 +1,4 @@
-package helpers;
+package helpers.accesslog;
 
 import play.libs.Codec;
 import play.mvc.Http;

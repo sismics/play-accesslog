@@ -1,4 +1,6 @@
 ## Change Log
+### Version 0.5 (2017-08-17)
+- Stream log events to console
 ### Version 0.4 (2017-08-15)
 - Add access logs console
 ### Version 0.3 (2017-08-03)

@@ -9,7 +9,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 0.4
+    - accesslog -> accesslog 0.5
 
 repositories:
     - accesslog:
@@ -48,7 +48,7 @@ accesslog.logResponse=true
 
 # Access the logs console
 
-The logs console allows you to modify configuration parameters at runtime.
+The logs console allows you to modify configuration parameters, and monitor log events at runtime.
 
 Add the following parameter to enable the logs console:
 

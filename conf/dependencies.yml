@@ -1,4 +1,5 @@
-self: play -> accesslog 0.4
+self: play -> accesslog 0.5
 
 require:
     - play
+    - com.google.guava -> guava 23.0

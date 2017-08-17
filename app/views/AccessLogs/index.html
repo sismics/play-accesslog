@@ -1,5 +1,16 @@
 <html>
-<head></head>
+<head>
+    <script>
+        var logsUrl = '@@{controllers.AccessLogWebsockets.logs()}';
+        #{if request.isRequestSecure()}
+        logsUrl = logsUrl.replace('ws://', 'wss://')
+        #{/if}
+        var socket = new WebSocket(logsUrl);
+        socket.onmessage = function (event) {
+            document.getElementById('logs').innerHTML = event.data + "\n" + document.getElementById('logs').innerHTML;
+        }
+    </script>
+</head>
 <body>
 <h1>Access log console</h1>
 
@@ -14,5 +25,7 @@
 </form>
 
 #{if flash.success}<p>Configuration updated successfully!</p>#{/if}
+
+<pre id="logs"></pre>
 </body>
 </html>
