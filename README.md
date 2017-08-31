@@ -9,7 +9,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 0.5
+    - accesslog -> accesslog 0.6.0
 
 repositories:
     - accesslog:

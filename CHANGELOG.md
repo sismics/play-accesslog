@@ -1,4 +1,7 @@
 ## Change Log
+### Version 0.6.0 (2017-08-31)
+- Log HTTP method
+- Fix warning about dropping messages
 ### Version 0.5 (2017-08-17)
 - Stream log events to console
 ### Version 0.4 (2017-08-15)
