@@ -1,11 +1,11 @@
 package plugins.accesslog;
 
+import helpers.accesslog.CappedEventStream;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
-import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Router;
 
@@ -29,7 +29,7 @@ public class AccessLogPlugin extends PlayPlugin {
 
     public boolean consoleEnabled;
 
-    public F.EventStream<String> events = new F.EventStream<>();
+    public CappedEventStream<String> events = new CappedEventStream<>();
 
     private static final String CONFIG_PREFIX = "accesslog";
 
