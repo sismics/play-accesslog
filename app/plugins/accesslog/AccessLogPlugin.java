@@ -17,7 +17,7 @@ import java.util.StringJoiner;
  * @author jtremeaux
  */
 public class AccessLogPlugin extends PlayPlugin {
-    private static final String FORMAT = "%v %h - %u [%t] \"%r\" %s %b \"%ref\" \"%ua\" %rt [%rh] \"%post\" \"%response\"";
+    private static final String FORMAT = "%v %h - %u [%t] %m \"%r\" %s %b \"%ref\" \"%ua\" %rt [%rh] \"%post\" \"%response\"";
 
     public boolean enabled;
 
@@ -80,6 +80,7 @@ public class AccessLogPlugin extends PlayPlugin {
         line = StringUtils.replaceOnce(line, "%h", request.remoteAddress);
         line = StringUtils.replaceOnce(line, "%u", (StringUtils.isEmpty(request.user)) ? "-" : request.user);
         line = StringUtils.replaceOnce(line, "%t", request.date.toString());
+        line = StringUtils.replaceOnce(line, "%m", request.method);
         line = StringUtils.replaceOnce(line, "%r", request.url);
         line = StringUtils.replaceOnce(line, "%s", status);
         line = StringUtils.replaceOnce(line, "%b", bytes);
