@@ -29,6 +29,21 @@ public class AccessLogPlugin extends PlayPlugin {
 
     public boolean consoleEnabled;
 
+    /**
+     * The last request hash code (used to count duplicates).
+     */
+    public int lastRequestHashCode;
+
+    /**
+     * The number of duplicates from last request.
+     */
+    public long duplicates = 0;
+    /**
+     * The previous line to log.
+     */
+    public String previousLine;
+
+
     public CappedEventStream<String> events = new CappedEventStream<>();
 
     private static final String CONFIG_PREFIX = "accesslog";
@@ -60,32 +75,17 @@ public class AccessLogPlugin extends PlayPlugin {
 
         long requestProcessingTime = System.currentTimeMillis() - request.date.getTime();
 
-        Http.Header referrer = request.headers.get(HttpHeaders.Names.REFERER.toLowerCase());
-        Http.Header userAgent = request.headers.get(HttpHeaders.Names.USER_AGENT.toLowerCase());
-
-        String bytes = "-";
-        String status = "-";
-
-      /* It seems as though the Response.current() is only valid when the request is handled by a controller
-         Serving static files, static 404's and 500's etc don't populate the same Response.current()
-         This prevents us from getting the bytes sent and response status all of the time
-       */
-        if (request.action != null && response.out.size() > 0) {
-            bytes = String.valueOf(response.out.size());
-            status = response.status.toString();
-        }
-
         String line = FORMAT;
         line = StringUtils.replaceOnce(line, "%v", request.host);
         line = StringUtils.replaceOnce(line, "%h", request.remoteAddress);
-        line = StringUtils.replaceOnce(line, "%u", (StringUtils.isEmpty(request.user)) ? "-" : request.user);
+        line = StringUtils.replaceOnce(line, "%u", getUser(request));
         line = StringUtils.replaceOnce(line, "%t", request.date.toString());
         line = StringUtils.replaceOnce(line, "%m", request.method);
         line = StringUtils.replaceOnce(line, "%r", request.url);
-        line = StringUtils.replaceOnce(line, "%s", status);
-        line = StringUtils.replaceOnce(line, "%b", bytes);
-        line = StringUtils.replaceOnce(line, "%ref", (referrer != null) ? referrer.value() : "");
-        line = StringUtils.replaceOnce(line, "%ua", (userAgent != null) ? userAgent.value() : "");
+        line = StringUtils.replaceOnce(line, "%s", getStatus(request, response));
+        line = StringUtils.replaceOnce(line, "%b", getBytes(request, response));
+        line = StringUtils.replaceOnce(line, "%ref", getReferrer(request));
+        line = StringUtils.replaceOnce(line, "%ua", getUserAgent(request));
         line = StringUtils.replaceOnce(line, "%rt", String.valueOf(requestProcessingTime));
 
         line = replaceRequestHeaders(request, line);
@@ -94,11 +94,65 @@ public class AccessLogPlugin extends PlayPlugin {
 
         line = StringUtils.trim(line);
 
+        // Check for duplicates
+        int requestHashCode = getRequestHashCode();
+        if (lastRequestHashCode == requestHashCode) {
+            previousLine = line;
+            duplicates++;
+        } else {
+            lastRequestHashCode = requestHashCode;
+            if (duplicates > 0) {
+                logLine(previousLine);
+                logLine(" + " + duplicates + " duplicates");
+                duplicates = 0;
+            }
+
+            logLine(line);
+        }
+    }
+
+    private void logLine(String line) {
         if (consoleEnabled) {
             events.publish(line);
         }
 
         Logger.info(line);
+    }
+
+    private String getUser(Http.Request request) {
+        return (StringUtils.isEmpty(request.user)) ? "-" : request.user;
+    }
+
+    private String getStatus(Http.Request request, Http.Response response) {
+      /* It seems as though the Response.current() is only valid when the request is handled by a controller
+         Serving static files, static 404's and 500's etc don't populate the same Response.current()
+         This prevents us from getting the bytes sent and response status all of the time
+       */
+        if (request.action != null && response.out.size() > 0) {
+            return response.status.toString();
+        }
+        return "-";
+    }
+
+    private String getBytes(Http.Request request, Http.Response response) {
+      /* It seems as though the Response.current() is only valid when the request is handled by a controller
+         Serving static files, static 404's and 500's etc don't populate the same Response.current()
+         This prevents us from getting the bytes sent and response status all of the time
+       */
+        if (request.action != null && response.out.size() > 0) {
+            return String.valueOf(response.out.size());
+        }
+        return "-";
+    }
+
+    private String getReferrer(Http.Request request) {
+        Http.Header referrer = request.headers.get(HttpHeaders.Names.REFERER.toLowerCase());
+        return (referrer != null) ? referrer.value() : "";
+    }
+
+    private String getUserAgent(Http.Request request) {
+        Http.Header userAgent = request.headers.get(HttpHeaders.Names.USER_AGENT.toLowerCase());
+        return (userAgent != null) ? userAgent.value() : "";
     }
 
     private String replaceRequestHeaders(Http.Request request, String line) {
@@ -151,6 +205,21 @@ public class AccessLogPlugin extends PlayPlugin {
     private boolean isErrorStatus(Http.Response response) {
         int statusCode = response.status / 100;
         return statusCode == 4 || statusCode == 5;
+    }
+
+    private int getRequestHashCode() {
+        Http.Request request = Http.Request.current();
+        Http.Response response = Http.Response.current();
+        String requestSig = request.host;
+        requestSig += request.remoteAddress;
+        requestSig += getUser(request);
+        requestSig += request.method;
+        requestSig += request.url;
+        requestSig += getStatus(request, response);
+        requestSig += getBytes(request, response);
+        requestSig += getReferrer(request);
+        requestSig += getUserAgent(request);
+        return requestSig.hashCode();
     }
 
     @Override
