@@ -1,5 +1,9 @@
-self: play -> accesslog 0.7.0
+self: play -> accesslog 1.0.0
+
+configurations:
+    - provided:
+          exclude: true
 
 require:
     - play
-    - com.google.guava -> guava 23.0
+    - com.google.guava -> guava 27.1-jre

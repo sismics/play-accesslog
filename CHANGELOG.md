@@ -1,4 +1,6 @@
 ## Change Log
+### Version 1.0.0 (2019-04-05)
+- Automate release
 ### Version 0.7.0 (2018-01-10)
 - Count duplicates
 ### Version 0.6.0 (2017-08-31)
