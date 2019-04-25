@@ -10,6 +10,7 @@ import play.mvc.Http;
 import play.mvc.Router;
 
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 /**
  * Access logs plugin.
@@ -28,6 +29,8 @@ public class AccessLogPlugin extends PlayPlugin {
     public boolean logResponse;
 
     public boolean consoleEnabled;
+
+    public Pattern blacklistPattern;
 
     /**
      * The last request hash code (used to count duplicates).
@@ -55,6 +58,16 @@ public class AccessLogPlugin extends PlayPlugin {
         logPost = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logPost", "false"));
         logResponse = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".logResponse", "false"));
         consoleEnabled = Boolean.parseBoolean(Play.configuration.getProperty(CONFIG_PREFIX + ".console.enabled", String.valueOf(Play.mode.isDev())));
+        String blacklistRegexp = Play.configuration.getProperty(CONFIG_PREFIX + ".blacklist");
+        if (blacklistRegexp != null && !"".equals(blacklistRegexp.trim())) {
+            try {
+                blacklistPattern = Pattern.compile(blacklistRegexp);
+            } catch (Exception e) {
+                Logger.error("Error compiling blacklist pattern: " + blacklistRegexp);
+            }
+        } else {
+            blacklistPattern = null;
+        }
     }
 
     @Override
@@ -94,6 +107,10 @@ public class AccessLogPlugin extends PlayPlugin {
 
         line = StringUtils.trim(line);
 
+        if (isBlacklisted(line)) {
+            return;
+        }
+
         // Check for duplicates
         int requestHashCode = getRequestHashCode();
         if (lastRequestHashCode == requestHashCode) {
@@ -117,6 +134,14 @@ public class AccessLogPlugin extends PlayPlugin {
         }
 
         Logger.info(line);
+    }
+
+    private boolean isBlacklisted(String line) {
+        if (blacklistPattern == null) {
+            return false;
+        }
+
+        return blacklistPattern.matcher(line).find();
     }
 
     private String getUser(Http.Request request) {

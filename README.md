@@ -9,7 +9,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 1.0.1
+    - accesslog -> accesslog 1.1.0
 
 repositories:
     - sismicsNexusRaw:
@@ -67,6 +67,14 @@ Add the following parameter to secure the logs console
 ```
 accesslog.console.username=console
 accesslog.console.password=pass1234
+```
+
+####  Exclude some logs
+
+You can blacklist some lines matching a regexp to avoid flooding the logs.
+
+```
+accesslog.blacklist=POST "/monitoring"
 ```
 
 #  Warning
