@@ -1,6 +1,6 @@
 package plugins.accesslog;
 
-import helpers.accesslog.CappedEventStream;
+import helpers.stream.CappedEventStream;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import play.Logger;

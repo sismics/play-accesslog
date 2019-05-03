@@ -1,6 +1,6 @@
 package controllers;
 
-import helpers.accesslog.BasicAuthHelper;
+import helpers.http.BasicAuthHelper;
 import play.Play;
 import play.mvc.Controller;
 import play.mvc.Util;

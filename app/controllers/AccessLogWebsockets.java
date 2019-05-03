@@ -19,6 +19,6 @@ public class AccessLogWebsockets extends WebSocketController {
 
     @Util
     public static AccessLogPlugin getPluginInstance() {
-        return (AccessLogPlugin) Play.pluginCollection.getPluginInstance(AccessLogPlugin.class);
+        return Play.pluginCollection.getPluginInstance(AccessLogPlugin.class);
     }
 }

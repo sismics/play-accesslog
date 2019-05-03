@@ -1,4 +1,4 @@
-self: play -> accesslog 1.1.0
+self: play -> accesslog 1.1.1
 
 configurations:
     - provided:
@@ -7,3 +7,11 @@ configurations:
 require:
     - play
     - com.google.guava -> guava 27.1-jre
+    - playful -> playful 1.6.1
+
+repositories:
+    - sismicsNexusRaw:
+          type: http
+          artifact: "https://nexus.sismics.com/repository/sismics/[module]-[revision].zip"
+          contains:
+              - playful -> *

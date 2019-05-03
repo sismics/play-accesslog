@@ -1,4 +1,6 @@
 ## Change Log
+### Version 1.1.1 (2019-05-03)
+- Externalize utils
 ### Version 1.1.0 (2019-04-25)
 - Add configuration option to exclude logs matching a pattern
 ### Version 1.0.1 (2019-04-05)
