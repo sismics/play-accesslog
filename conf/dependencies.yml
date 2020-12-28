@@ -1,4 +1,4 @@
-self: play -> accesslog 1.1.1
+self: play -> accesslog 1.2.0
 
 configurations:
     - provided:

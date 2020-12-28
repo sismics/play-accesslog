@@ -1,15 +1,19 @@
+[![GitHub release](https://img.shields.io/github/release/sismics/play-accesslog.svg?style=flat-square)](https://github.com/sismics/play-accesslog/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # play-accesslog plugin
 
 This module allows simple logging of HTTP requests to the console.
 
 It is based off Brian Nesbitt's logging module: https://www.playframework.com/modules/accesslog
+
 # How to use
 
 ####  Add the dependency to your `dependencies.yml` file
 
 ```
 require:
-    - accesslog -> accesslog 1.1.1
+    - accesslog -> accesslog 1.2.0
 
 repositories:
     - sismicsNexusRaw:
