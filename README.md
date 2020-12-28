@@ -13,7 +13,7 @@ It is based off Brian Nesbitt's logging module: https://www.playframework.com/mo
 
 ```
 require:
-    - accesslog -> accesslog 1.2.0
+    - accesslog -> accesslog 1.2.1
 
 repositories:
     - sismicsNexusRaw:
